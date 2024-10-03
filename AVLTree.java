@@ -343,27 +343,74 @@ class LUC_AVLTree {
 
     private Node deleteElement(int value, Node node) {
 
-        /*
-         * ADD CODE HERE
-         * 
-         * NOTE, that you should use the existing coded private methods
-         * in this file, which include:
-         *      - minValueNode,
-         *      - getMaxHeight,
-         *      - getHeight,
-         *      - getBalanceFactor,
-         *      - LLRotation
-         *      - RRRotation,
-         *      - LRRotation,
-         *      - RLRotation.
-         *
-         * To understand what each of these methods do, see the method prologues and
-         * code for each. You can also look at the method InsertElement, as it has do
-         * do many of the same things as this method.
-         */
+                /*
+                 * NOTE, that you should use the existing coded private methods
+                 * in this file, which include:
+                 *      - minValueNode,
+                 *      - getMaxHeight,
+                 *      - getHeight,
+                 *      - getBalanceFactor,
+                 *      - LLRotation
+                 *      - RRRotation,
+                 *      - LRRotation,
+                 *      - RLRotation.
+                 *
+                 * To understand what each of these methods do, see the method prologues and
+                 * code for each. You can also look at the method InsertElement, as it has do
+                 * do many of the same things as this method.
+                 */
 
-        return node;
-    }
+
+                if (node == null) {
+                        return null;
+                }
+
+                if (value < node.value) { //only left subTree
+                        node.leftChild = deleteElement(value, node.leftChild);
+                } else if (value > node.value) { //only right subTree
+                        node.rightChild = deleteElement(value, node.rightChild);
+                } else { 
+                        if (node.leftChild == null) {
+                                return node.rightChild;
+                        } else if (node.rightChild == null) {
+                                return node.leftChild;
+                        }
+
+                        // Node with two children
+                        Node succesorNode = minValueNode(node.rightChild);
+                        node.value = succesorNode.value;
+                        node.rightChild = deleteElement(succesorNode.value, node.rightChild);
+                }
+
+                //get new height
+                node.height = getMaxHeight(getHeight(node.leftChild), getHeight(node.rightChild)) + 1;
+
+                int bf;
+                bf = getBalanceFactor(node);
+
+                // LL rotation
+                if (bf > 1 && getBalanceFactor(node.leftChild) >= 0) {
+                        return LLRotation(node);
+                }
+
+                // RR rotation
+                if (bf < -1 && getBalanceFactor(node.rightChild) <= 0) {
+                        return RRRotation(node);
+                }
+
+                // LR rotation
+                if (bf > 1 && getBalanceFactor(node.leftChild) <= 0) {
+                        node.leftChild = RRRotation(node.leftChild);
+                        return LLRotation(node);
+                }
+
+                // RL rotation
+                if (bf < -1 && getBalanceFactor(node.rightChild) >= 0) {
+                        node.rightChild = LLRotation(node.rightChild);
+                        return RRRotation(node);
+                }
+                return node;
+        }
 
 
     /**
